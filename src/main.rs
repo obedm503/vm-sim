@@ -136,19 +136,19 @@ fn get_args() -> Result<(u32, String, bool, String)> {
 }
 
 fn main() -> Result<()> {
+    let traces = vec![
+        "traces/gcc.trace",
+        "traces/sixpack.trace",
+        "traces/swim.trace",
+    ];
+    let algorithms = vec!["lru", "fifo", "random"];
+
     let args = env::args().collect::<Vec<String>>();
     let mode = args.get(1).unwrap().as_str();
+
     if mode == "memory" {
-        let traces = vec![
-            "traces/gcc.trace",
-            "traces/sixpack.trace",
-            "traces/swim.trace",
-        ];
-
         for trace in traces {
-            let algorithms = vec!["lru", "fifo", "random"];
-
-            for algorithm in algorithms {
+            for algorithm in algorithms.to_vec() {
                 let optimal_memory_size =
                     find_optimal_memory(trace.to_string(), algorithm.to_string());
                 println!(
@@ -168,11 +168,6 @@ fn main() -> Result<()> {
 
         // run for specific algorithm
         if let Some(algorithim) = args.get(2) {
-            let traces = vec![
-                "traces/gcc.trace",
-                "traces/sixpack.trace",
-                "traces/swim.trace",
-            ];
             for trace in traces {
                 get_data(trace.to_string(), algorithim)?;
             }
@@ -180,15 +175,8 @@ fn main() -> Result<()> {
             return Ok(());
         }
 
-        let traces = vec![
-            "traces/gcc.trace",
-            "traces/sixpack.trace",
-            "traces/swim.trace",
-        ];
         for trace in traces {
-            let algorithms = vec!["lru", "fifo", "random"];
-
-            for algorithm in algorithms {
+            for algorithm in algorithms.to_vec() {
                 get_data(trace.to_string(), &algorithm.to_string())?;
             }
         }

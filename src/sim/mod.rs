@@ -99,18 +99,14 @@ impl Iterator for Sim {
     type Item = SimState;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.state = SimState {
-            total_events: self.state.total_events,
-            read_count: self.state.read_count,
-            write_count: self.state.write_count,
-        };
+        let mut state = self.state.clone();
 
         if let Some(line) = self.trace.next() as Option<io::Result<String>> {
             if line.is_err() {
                 panic!("could not read line {:?}", line);
             }
 
-            self.state.total_events += 1;
+            state.total_events += 1;
 
             let op = Operation::parse_line(line.unwrap());
 
@@ -153,13 +149,13 @@ impl Iterator for Sim {
                         if evicted_page.is_dirty {
                             // for simplicity: instead of resetting the entry, simply destroy it
                             self.page_table.remove(physical_page_number);
-                            self.state.write_count += 1;
+                            state.write_count += 1;
                         }
                     }
                 }
 
                 // load from disk
-                self.state.read_count += 1;
+                state.read_count += 1;
 
                 // load into memory
                 self.memory[available_physical_page_index] = Some(op.virtual_page_number);
@@ -175,6 +171,7 @@ impl Iterator for Sim {
                 Op::R => {}
             }
 
+            self.state = state;
             return Some(self.state);
         }
 
